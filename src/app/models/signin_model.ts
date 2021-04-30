@@ -3,6 +3,8 @@ export interface employee{
     emp_name:string,
     dept_id:number,
     dept_name:string,
+    timein:string,
+    timeout:string,
     gps:gps[],
   }
 
