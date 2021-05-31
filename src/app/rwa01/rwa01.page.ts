@@ -24,11 +24,12 @@ export class Rwa01Page implements OnInit {
   vip:any;vip2:any; deviceInfo:any; ipAddress:string;vkm:any;
   emp_code:string;emp_name:string;dept_name:string;dept_id:number;img:string;
   datagps =[];timein:string;timeout:string;
+  gpsplacelon:any; gpsplacelat:any;
   portControl_checktype: FormControl; ports_checktype: any;
   portControl_dept: FormControl; ports_dept: any;
   idleState = 'Not started.';timedOutidle = false;lastPing?: Date = null;
   constructor(public formBuilder: FormBuilder, public menuCtrl: MenuController, private navCtrl: NavController, private geolocation: Geolocation, public configSv: RwaConfigService,  public plf: Platform, private deviceService: DeviceDetectorService,private idle: Idle, private keepalive: Keepalive) {
-    //this.chkidle();
+    this.chkidle();
   }
 
   ngOnInit() {
@@ -72,6 +73,7 @@ export class Rwa01Page implements OnInit {
     this.ports_checktype = [
       {id: '0',type: 'ปกติ'},
       {id: '1',type: 'ช่วยราชการ'},
+      {id: '2',type: 'WFH'},
     ];
   }
 
@@ -79,8 +81,8 @@ export class Rwa01Page implements OnInit {
     component: IonicSelectableComponent,
     value: any
   }) {
-    console.log('port:', event.value);
-    if(event.value.id == '0'){
+    //console.log('port:', event.value);
+    if(event.value.id == '0' || event.value.id == '2'){
       this.ionicForm.get('dept').setValidators(null);
     }else{
       this.ionicForm.get('dept').setValidators(Validators.required);
@@ -101,17 +103,18 @@ export class Rwa01Page implements OnInit {
         (data) => {
           if (data !== null){
             //console.log(data);
-            this.vkm = this.distance(100.467836986014,13.7716049981198,100.472836986015,13.7716049981199,'K')
+            //this.vkm = this.distance(100.467836986014,13.7716049981198,100.472836986015,13.7716049981199,'K')
             //let x = this.distance(51.525,7.4575,51.5175,7.4678,'K')
             //let x = this.distance(this.vlat,this.vlon,51.5175,7.4678,'K')
             //console.log(x);
             //this.data = data['employee'][0]['emp_name'];
-
+            //console.log(this.vlat,this.vlon)
             this.emp_code = data['employee'][0]['emp_code'];
             this.emp_name = data['employee'][0]['emp_name'];
             this.dept_id = data['employee'][0]['dept_id'];
             this.dept_name = data['employee'][0]['dept_name'];
-            this.img = "http://10.99.70.35:8080/"+ data['employee'][0]['emp_code'] +".jpg"
+            //this.img = "http://10.99.70.35:8080/"+ data['employee'][0]['emp_code'] +".jpg"
+            this.img = data['employee'][0]['pic'];
             this.datagps = data['employee'][0]['gps'];
             this.timein = data['employee'][0]['timein'];
             this.timeout = data['employee'][0]['timeout'];
@@ -120,9 +123,13 @@ export class Rwa01Page implements OnInit {
             //this.ionicForm.controls["password"].setValue(null);
             //this.isSubmitted = false;
            // console.log(this.datagps);
-            this.GetGPS();
+           if(this.datagps){
+            this.gpsplacelat = data['employee'][0]['gps'][0]['lat'];
+            this.gpsplacelon = data['employee'][0]['gps'][0]['lon'];
 
-
+           }
+           this.GetGPS(this.gpsplacelat, this.gpsplacelon);
+           // this.vkm = this.distance(data['employee'][0]['gps'][0]['lat'],data['employee'][0]['gps'][0]['lon'],this.vlat,this.vlon,'K' );
           }
           else
           {
@@ -179,6 +186,7 @@ export class Rwa01Page implements OnInit {
       lon_wgs84: this.vlon,
       ip_address : this.ipAddress,
       deviecinfo : this.deviceInfo,
+      km : this.vkm,
     };
     //console.log(data);
 
@@ -194,9 +202,9 @@ export class Rwa01Page implements OnInit {
       );
 
     if(type === 1){
-      this.timein =this.ionicForm.controls.server_time.value
+      this.timein  = this.ionicForm.controls.server_time.value
     }else if(type === 2){
-      this.timeout =this.ionicForm.controls.server_time.value
+      this.timeout = this.ionicForm.controls.server_time.value
     }
   }
 
@@ -234,12 +242,13 @@ export class Rwa01Page implements OnInit {
     this.ionicForm.controls["server_time"].setValue(moment().format('DD/MM/YYYY H:mm:ss'));
   }
 
-  GetGPS(){
+  GetGPS(plat,plon){
     this.geolocation.getCurrentPosition().then((resp) => {
       // resp.coords.latitude
       // resp.coords.longitude
       this.vlat = resp.coords.latitude;
       this.vlon = resp.coords.longitude;
+      this.vkm = this.distance(plat,plon,this.vlat,this.vlon,'K' );
     }).catch((error) => {
       console.log('Error getting location', error);
     });
@@ -269,7 +278,7 @@ export class Rwa01Page implements OnInit {
   chkidle(){
     this.idle.setIdle(5);
     // sets a timeout period of 5 seconds. after 10 seconds of inactivity, the user will be considered timed out.
-    this.idle.setTimeout(5);
+    this.idle.setTimeout(120);
     // sets the default interrupts, in this case, things like clicks, scrolls, touches to the document
     this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
 

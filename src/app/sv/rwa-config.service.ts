@@ -12,7 +12,7 @@ import {Keepalive} from '@ng-idle/keepalive';
   providedIn: 'root'
 })
 export class RwaConfigService {
-  public ip:string = "http://appcen01.rubber.co.th/ws_rwa/";
+  public ip:string = "https://appcen01.rubber.co.th/ws_rwa/";
   //public ip: string = "https://www.rubber.co.th/gir/sc/";
   idleState = 'Not started.';timedOut = false;lastPing?: Date = null;
   constructor(private http: HttpClient,private loadingController: LoadingController,private alertCtrl: AlertController,private idle: Idle, private keepalive: Keepalive,private navCtrl: NavController) { }
@@ -52,8 +52,8 @@ export class RwaConfigService {
       this.idleState = 'Timed out!';
       this.timedOut = true;
       this.resetidle();
-      //console.log(this.idleState);
-      //this.navCtrl.navigateForward('/folder/:2');
+      console.log(this.idleState);
+      //this.navCtrl.navigateForward('/rwa01');
     });
     this.idle.onIdleStart.subscribe(() => {
       this.idleState = 'You\'ve gone idle!';
@@ -136,6 +136,7 @@ export class RwaConfigService {
       'os': vdata.deviecinfo.os,
       'os_version': vdata.deviecinfo.os_version,
       'useragent': vdata.deviecinfo.userAgent,
+      'km':vdata.km,
       'type_sql': 'insert',
     }
 

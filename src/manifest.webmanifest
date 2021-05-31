@@ -1,12 +1,18 @@
 {
-  "name": "app",
-  "short_name": "app",
+  "name": "RAOT ลงเวลาทำงาน",
+  "short_name": "RWA",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
   "icons": [
+     {
+      "src": "assets/icons/icon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
     {
       "src": "assets/icons/icon-72x72.png",
       "sizes": "72x72",
@@ -20,20 +26,8 @@
       "purpose": "maskable any"
     },
     {
-      "src": "assets/icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
       "src": "assets/icons/icon-144x144.png",
       "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "assets/icons/icon-152x152.png",
-      "sizes": "152x152",
       "type": "image/png",
       "purpose": "maskable any"
     },

@@ -1,8 +1,8 @@
 <ion-content>
   <div class="main">
-    <p class="sign" align="center">Raot Work Attendance</p>
-    <!-- <p class="sign" align="center">DDA</p> -->
-    <form [formGroup]="ionicForm"  (ngSubmit)="submitForm()" novalidate >
+    <p><img src="assets/imgs/logo1.png" class="logo" width="50" height="50"></p>
+    <p class="sign" >Raot Work Attendance</p>
+    <form class="formmain" [formGroup]="ionicForm"  (ngSubmit)="submitForm()" novalidate >
       <ion-item lines="full" class="un">
         <ion-label class="showlabel"  position="floating">วัน/เวลา</ion-label>
         <ion-input  formControlName="server_time" type="text" readonly></ion-input>
@@ -42,7 +42,7 @@
      </ion-item>
       <ion-row>
         <ion-col>
-          <ion-button type="submit" color="danger" expand="block">เข้าสู่ระบบ</ion-button>
+          <ion-button type="submit" color="secondary" expand="block">เข้าสู่ระบบ</ion-button>
         </ion-col>
       </ion-row>
       <!-- <ion-row>
@@ -54,7 +54,7 @@
         <ion-col>ip1: {{vdevice}}</ion-col>
       </ion-row> -->
     </form>
-    <div *ngIf="emp_name != null">
+    <div class="formsub" *ngIf="emp_name != null">
       <ion-grid >
         <ion-row>
           <ion-col>
@@ -66,10 +66,13 @@
           <ion-col>
             <ion-label> {{dept_name}}</ion-label>
           </ion-col>
+          <ion-col>
+            <ion-label> <u>ลงเวลาแบบ</u> {{ionicForm.controls.check_type.value.type}}</ion-label>
+          </ion-col>
         </ion-row>
         <ion-row  *ngFor="let c of datagps">
           <ion-col>
-            <ion-label>พิกัดสำนักงาน {{c.lat}} , {{c.lon}}</ion-label>
+            <ion-label> <u>พิกัดสำนักงาน</u> {{c.lat}} , {{c.lon}}</ion-label>
           </ion-col>
         </ion-row>
         <ion-row *ngIf="!datagps">
@@ -79,15 +82,15 @@
         </ion-row>
         <ion-row>
           <ion-col>
-            <ion-label>พิกัดปัจจุบัน {{vlat}} , {{vlon}} <ion-button (click)="GetGPS()">ดึงพิกัดใหม่</ion-button></ion-label>
+            <ion-label><u>พิกัดปัจจุบัน</u> {{vlat}} , {{vlon}} <ion-button (click)="GetGPS(gpsplacelat,gpsplacelon)">ดึงพิกัดใหม่</ion-button></ion-label>
           </ion-col>
         </ion-row>
         <ion-row>
-          <ion-col>ระยะทาง {{vkm}}  km.</ion-col>
+          <ion-col><u>ระยะทางโดยประมาณ</u> {{vkm}}  km.</ion-col>
         </ion-row>
       </ion-grid>
 
-      <div *ngIf="vkm <= 0.600">
+      <div *ngIf="(vkm <= 0.600 && datagps) || ionicForm.controls.check_type.value.id === '2'">
         <ion-grid>
          <ion-row>
            <ion-col><ion-label>บันทึกเข้าเวลา :</ion-label></ion-col>
@@ -98,22 +101,20 @@
           <ion-col>{{timeout}}</ion-col>
         </ion-row>
         <ion-row>
-          <ion-col><ion-button (click)="Checkinout(1)">ลงเวลาเข้าทำงาน</ion-button></ion-col>
-          <ion-col><ion-button (click)="Checkinout(2)">ลงเวลาออกทำงาน</ion-button></ion-col>
+          <ion-col><ion-button color="success" (click)="Checkinout(1)">ลงเวลาเข้าทำงาน</ion-button></ion-col>
+          <ion-col><ion-button color="danger" (click)="Checkinout(2)">ลงเวลาออกทำงาน</ion-button></ion-col>
         </ion-row>
         </ion-grid>
       </div>
-      <div *ngIf="vkm > 0.600">
-        <ion-label>ไม่สามารถลงเวลาได้ เนื่องจากระยะทางเกิน 200 ม.</ion-label>
+      <div *ngIf="vkm > 0.600 && ionicForm.controls.check_type.value.id !== '2'">
+        <ion-label class="error">ไม่สามารถลงเวลาได้ เนื่องจากระยะทางเกิน 200 ม. กรุณาเข้าใกล้สำนักงานฯตามระยะทางที่กำหนด โดยกดปุ่มดึงพิกัดใหม่อีกครั้ง</ion-label>
       </div>
-      <div *ngIf = "!datagps">
-          <ion-label>ไม่สามารถลงเวลาได้ เนื่องจากไม่พบพิกัด สำนักงาน</ion-label>
+      <div *ngIf = "!datagps && ionicForm.controls.check_type.value.id !== '2'">
+          <ion-label class="error">ไม่สามารถลงเวลาได้ เนื่องจากไม่พบพิกัด สำนักงาน กรุณาติดต่อ 12322</ion-label>
       </div>
     </div>
-    <ion-row  class="appversion">
-      <ion-col>
-        <ion-label> App Version : {{versionNumber}} </ion-label>
-      </ion-col>
+    <ion-row  >
+        <ion-label class="appversion"> App Version : {{versionNumber}} </ion-label>
     </ion-row>
   </div>
 </ion-content>
