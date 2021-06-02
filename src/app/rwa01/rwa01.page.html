@@ -33,8 +33,8 @@
         </span>
       </ion-item>
      <ion-item *ngIf="this.ionicForm.controls.check_type.value.id === '1'">
-      <ion-label class="showlabel" position="floating">สังกัดที่ช่วย</ion-label>
-        <ionic-selectable interface="floating" formControlName="dept" itemValueField="dept_id"itemTextField="dept_name" [items]="ports_dept" [canSearch]="true" closeButtonText="ยกเลิก" >
+      <ion-label class="showlabel" position="floating">สังกัดที่ช่วยปฏิบัติงาน</ion-label>
+        <ionic-selectable interface="floating" formControlName="dept" itemValueField="dept_id"itemTextField="dept_name" [items]="ports_dept" [canSearch]="true" closeButtonText="ยกเลิก" (onChange)="portChange($event)" >
         </ionic-selectable>
         <span  class="error" *ngIf="isSubmitted && errorControl.dept.errors?.required">
           กรุณาระบุ สังกัดที่ช่วย
@@ -45,6 +45,7 @@
           <ion-button type="submit" color="secondary" expand="block">เข้าสู่ระบบ</ion-button>
         </ion-col>
       </ion-row>
+
       <!-- <ion-row>
         <ion-col>Lat: {{vlat}}</ion-col>
         <ion-col>Lon: {{vlon}}</ion-col>
@@ -54,6 +55,18 @@
         <ion-col>ip1: {{vdevice}}</ion-col>
       </ion-row> -->
     </form>
+    <ion-row>
+      <ion-col>
+        <button class="manual" ion-button (click)="openmanual()">คู่มือการใช้งาน</button>
+      </ion-col>
+      <ion-col>
+        <button class="manual1" ion-button (click)="openmanual1()">ดูข้อมูลย้อนหลัง</button>
+      </ion-col>
+    </ion-row>
+
+
+
+
     <div class="formsub" *ngIf="emp_name != null">
       <ion-grid >
         <ion-row>
@@ -90,7 +103,7 @@
         </ion-row>
       </ion-grid>
 
-      <div *ngIf="(vkm <= 0.600 && datagps) || ionicForm.controls.check_type.value.id === '2'">
+      <div *ngIf="(vkm <= setkm && datagps) || ionicForm.controls.check_type.value.id === '2'">
         <ion-grid>
          <ion-row>
            <ion-col><ion-label>บันทึกเข้าเวลา :</ion-label></ion-col>
@@ -106,8 +119,8 @@
         </ion-row>
         </ion-grid>
       </div>
-      <div *ngIf="vkm > 0.600 && ionicForm.controls.check_type.value.id !== '2'">
-        <ion-label class="error">ไม่สามารถลงเวลาได้ เนื่องจากระยะทางเกิน 200 ม. กรุณาเข้าใกล้สำนักงานฯตามระยะทางที่กำหนด โดยกดปุ่มดึงพิกัดใหม่อีกครั้ง</ion-label>
+      <div *ngIf="vkm > setkm && ionicForm.controls.check_type.value.id !== '2'">
+        <ion-label class="error">ไม่สามารถลงเวลาได้ เนื่องจากระยะทางเกิน {{setkm*1000}} ม. กรุณาเข้าใกล้สำนักงานฯตามระยะทางที่กำหนด โดยกดปุ่มดึงพิกัดใหม่อีกครั้ง</ion-label>
       </div>
       <div *ngIf = "!datagps && ionicForm.controls.check_type.value.id !== '2'">
           <ion-label class="error">ไม่สามารถลงเวลาได้ เนื่องจากไม่พบพิกัด สำนักงาน กรุณาติดต่อ 12322</ion-label>

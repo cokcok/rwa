@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, NavController } from '@ionic/angular';
+import { MenuController, NavController,AlertController } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators,FormControl,FormArray  } from '@angular/forms';
+
 import { Subscription } from 'rxjs';
 import { RwaConfigService } from '../sv/rwa-config.service';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
@@ -12,6 +13,8 @@ import * as moment_ from 'moment';
 import 'moment/locale/th';
 const moment = moment_;
 import { IonicSelectableComponent } from 'ionic-selectable';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { NetworkInterface } from '@ionic-native/network-interface/ngx';
 @Component({
   selector: 'app-rwa01',
   templateUrl: './rwa01.page.html',
@@ -27,8 +30,12 @@ export class Rwa01Page implements OnInit {
   gpsplacelon:any; gpsplacelat:any;
   portControl_checktype: FormControl; ports_checktype: any;
   portControl_dept: FormControl; ports_dept: any;
+  wifiip:any; wifisubnet:any;carrierip:any;carriersubnet:any;
   idleState = 'Not started.';timedOutidle = false;lastPing?: Date = null;
-  constructor(public formBuilder: FormBuilder, public menuCtrl: MenuController, private navCtrl: NavController, private geolocation: Geolocation, public configSv: RwaConfigService,  public plf: Platform, private deviceService: DeviceDetectorService,private idle: Idle, private keepalive: Keepalive) {
+  setkm:number = 0.100;
+
+  constructor(public formBuilder: FormBuilder, public menuCtrl: MenuController, private navCtrl: NavController, private geolocation: Geolocation, public configSv: RwaConfigService,  public plf: Platform, private deviceService: DeviceDetectorService,private idle: Idle, private keepalive: Keepalive,private iab: InAppBrowser,private networkInterface: NetworkInterface,
+    private alertCtrl: AlertController) {
     this.chkidle();
   }
 
@@ -38,11 +45,10 @@ export class Rwa01Page implements OnInit {
     this.portControl_dept = this.formBuilder.control("");
     this.ionicForm = this.formBuilder.group({
       server_time: ["", [Validators.required]],
-      username: ['2428', [Validators.required]],
-      password: ['12022507', [Validators.required]],
+      username: ['', [Validators.required]],
+      password: ['', [Validators.required]],
       check_type: this.portControl_checktype,
       dept: this.portControl_dept,
-
     });
 
     //2428 12022507
@@ -69,10 +75,14 @@ export class Rwa01Page implements OnInit {
     this.epicFunction();this.getIP();this.loaddata_checktype();
   }
 
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
+
   loaddata_checktype(){
     this.ports_checktype = [
-      {id: '0',type: 'ปกติ'},
-      {id: '1',type: 'ช่วยราชการ'},
+      {id: '0',type: 'จากสำนักงาน'},
+      {id: '1',type: 'ไปช่วยปฏิบัติงาน'},
       {id: '2',type: 'WFH'},
     ];
   }
@@ -81,12 +91,13 @@ export class Rwa01Page implements OnInit {
     component: IonicSelectableComponent,
     value: any
   }) {
-    //console.log('port:', event.value);
-    if(event.value.id == '0' || event.value.id == '2'){
-      this.ionicForm.get('dept').setValidators(null);
-    }else{
+    this.emp_name = null;
+    if(event.value.id == '1'){
       this.ionicForm.get('dept').setValidators(Validators.required);
+    }else{
+      this.ionicForm.get('dept').setValidators(null);
     }
+    this.ionicForm.get('dept').updateValueAndValidity();
   }
 
 
@@ -99,6 +110,7 @@ export class Rwa01Page implements OnInit {
       this.emp_name = null;
       return false;
     } else {
+      this.configSv.loadingAlert(2000);
       this.sub = this.configSv.signin(this.ionicForm.value).subscribe(
         (data) => {
           if (data !== null){
@@ -126,7 +138,8 @@ export class Rwa01Page implements OnInit {
            if(this.datagps){
             this.gpsplacelat = data['employee'][0]['gps'][0]['lat'];
             this.gpsplacelon = data['employee'][0]['gps'][0]['lon'];
-
+           }else{
+            this.gpsplacelat = undefined; this.gpsplacelon = undefined;
            }
            this.GetGPS(this.gpsplacelat, this.gpsplacelon);
            // this.vkm = this.distance(data['employee'][0]['gps'][0]['lat'],data['employee'][0]['gps'][0]['lon'],this.vlat,this.vlon,'K' );
@@ -139,7 +152,9 @@ export class Rwa01Page implements OnInit {
           }
         },(error) => {
           console.log(JSON.stringify(error));
-          //loader.dismiss();
+          setTimeout(() => {
+            this.configSv.ChkformAlert('ตรวจสอบการเชื่อมต่อ vpn');
+            }, 2100);
         }
         );
     }
@@ -169,7 +184,7 @@ export class Rwa01Page implements OnInit {
     });
   }
 
-  Checkinout(type){
+  async Checkinout(type){
     //console.log(this.ionicForm.value);
     //console.log(this.vlat,this.vlon);
     if ( typeof this.vlat === "undefined"  ){
@@ -187,25 +202,61 @@ export class Rwa01Page implements OnInit {
       ip_address : this.ipAddress,
       deviecinfo : this.deviceInfo,
       km : this.vkm,
+      wifiip: this.wifiip,
+      wifisubnet:this.wifisubnet,
+      carrierip:this.carrierip,
+      carriersubnet:this.carriersubnet,
     };
     //console.log(data);
-
-    this.sub = this.configSv.crudrwa(data,'insert').subscribe(
-      (data) => {
-        if (data !== null){
-          this.configSv.ChkformAlert(data.message);
-        }
-      },(error) => {
-        console.log(JSON.stringify(error));
-        //loader.dismiss();
-      }
-      );
-
-    if(type === 1){
-      this.timein  = this.ionicForm.controls.server_time.value
-    }else if(type === 2){
-      this.timeout = this.ionicForm.controls.server_time.value
+    if( (type === 1 && this.timein !== null) || (type === 2 && this.timeout !== null)  ){
+      const confirm =  await this.alertCtrl.create({
+        header: 'คุณต้องการยืนยันการลงเวลาซ้ำอีกใช่ไหม ??',
+        buttons: [{
+          text: 'ยกเลิก',
+          handler: (data: any) => {
+             //console.log('cancel ',data);
+          }
+        },
+        {
+          text: 'ยืนยัน',
+            handler: (data: any) => {
+              this.sub = this.configSv.crudrwa(data,'insert').subscribe(
+                (data) => {
+                  if (data !== null){
+                    this.configSv.ChkformAlert(data.message);
+                    if(type === 1){
+                      this.timein  = this.ionicForm.controls.server_time.value
+                    }else if(type === 2){
+                      this.timeout = this.ionicForm.controls.server_time.value
+                    }
+                  }
+                },(error) => {
+                  console.log(JSON.stringify(error));
+                  //loader.dismiss();
+                });
+          }
+        }]
+      });
+      confirm.present();
+    }else{
+      this.sub = this.configSv.crudrwa(data,'insert').subscribe(
+        (data) => {
+          if (data !== null){
+            this.configSv.ChkformAlert(data.message);
+            if(type === 1){
+              this.timein  = this.ionicForm.controls.server_time.value
+            }else if(type === 2){
+              this.timeout = this.ionicForm.controls.server_time.value
+            }
+          }
+        },(error) => {
+          console.log(JSON.stringify(error));
+          //loader.dismiss();
+        });
     }
+
+
+
   }
 
   distance(lat1, lon1, lat2, lon2, unit) {
@@ -272,6 +323,24 @@ export class Rwa01Page implements OnInit {
     this.configSv.getIPAddress().subscribe((res:any)=>{
       this.ipAddress=res.ip;
     });
+
+    this.networkInterface.getWiFiIPAddress()
+    .then((address) => {
+      this.wifiip = address.ip;
+      this.wifisubnet = address.subnet;
+    })
+    .catch(error => console.error(`Unable to get IP: ${error}`));
+
+  this.networkInterface.getCarrierIPAddress()
+    //.then(address => console.info(`IP: ${address.ip}, Subnet: ${address.subnet}`))
+    .then((address) => {
+      this.carrierip = address.ip;
+      this.carriersubnet = address.subnet;
+    })
+    .catch(error => console.error(`Unable to get IP: ${error}`));
+
+
+
   }
 
 
@@ -314,4 +383,13 @@ export class Rwa01Page implements OnInit {
     this.idle.timeout();
   }
 
+  openmanual(){
+    let url = this.configSv.ip + 'doc/manual_rwa.pdf';
+    const browser = this.iab.create(url).show();
+  }
+
+  openmanual1(){
+    let url = 'http://appcen01.rubber.co.th/wfh/index1.php';
+    const browser = this.iab.create(url).show();
+  }
 }

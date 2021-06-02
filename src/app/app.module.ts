@@ -14,6 +14,7 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive'; // this includes the core NgIdleModule but includes keepalive providers for easy wireup
 import { MomentModule } from 'angular2-moment'; // optional, provides moment-style pipes for date formatting
 import { IonicSelectableModule } from 'ionic-selectable';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -23,7 +24,7 @@ import { IonicSelectableModule } from 'ionic-selectable';
     // or after 30 seconds (whichever comes first).
     registrationStrategy: 'registerWhenStable:30000'
   }), HttpClientModule, MomentModule,NgIdleKeepaliveModule.forRoot(),IonicSelectableModule],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, Geolocation, Device, NetworkInterface, DeviceDetectorService],
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, Geolocation, Device, NetworkInterface, DeviceDetectorService,InAppBrowser],
   bootstrap: [AppComponent],
 })
 export class AppModule { }

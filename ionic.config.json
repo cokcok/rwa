@@ -1,7 +1,8 @@
 {
   "name": "rwa",
   "integrations": {
-    "capacitor": {}
+    "capacitor": {},
+    "cordova": {}
   },
   "type": "angular"
 }

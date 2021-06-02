@@ -20,7 +20,7 @@ export class RwaConfigService {
   async loadingAlert(dur:number) {
     const loading = await this.loadingController.create({
       spinner: 'bubbles',
-      message: 'กำลังโหลดข้อมูล...',
+      message: 'กรุณารอสักครู่ กำลังโหลดข้อมูล...',
       duration: dur
     });
     return await loading.present();
@@ -78,7 +78,7 @@ export class RwaConfigService {
 
   getIPAddress()
   {
-    return this.http.get("http://api.ipify.org/?format=json");
+    return this.http.get("https://api.ipify.org/?format=json");
   }
 
 
@@ -137,8 +137,13 @@ export class RwaConfigService {
       'os_version': vdata.deviecinfo.os_version,
       'useragent': vdata.deviecinfo.userAgent,
       'km':vdata.km,
+      'wifiip': vdata.wifiip,
+      'wifisubnet':vdata.wifisubnet,
+      'carrierip':vdata.carrierip,
+      'carriersubnet':vdata.carriersubnet,
       'type_sql': 'insert',
     }
+
 
     return this.http.post<FeedBack>(apiUrl, data, { headers: header });
   }
