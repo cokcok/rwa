@@ -141,6 +141,7 @@ export class RwaConfigService {
       'wifisubnet':vdata.wifisubnet,
       'carrierip':vdata.carrierip,
       'carriersubnet':vdata.carriersubnet,
+      'problem_cause':vdata.problem_cause,
       'type_sql': 'insert',
     }
 

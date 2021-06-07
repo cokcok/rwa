@@ -33,7 +33,7 @@ export class Rwa01Page implements OnInit {
   wifiip:any; wifisubnet:any;carrierip:any;carriersubnet:any;
   idleState = 'Not started.';timedOutidle = false;lastPing?: Date = null;
   setkm:number = 0.100;
-
+  dontchkgps = ['2','3'];
   constructor(public formBuilder: FormBuilder, public menuCtrl: MenuController, private navCtrl: NavController, private geolocation: Geolocation, public configSv: RwaConfigService,  public plf: Platform, private deviceService: DeviceDetectorService,private idle: Idle, private keepalive: Keepalive,private iab: InAppBrowser,private networkInterface: NetworkInterface,
     private alertCtrl: AlertController) {
     this.chkidle();
@@ -49,6 +49,7 @@ export class Rwa01Page implements OnInit {
       password: ['', [Validators.required]],
       check_type: this.portControl_checktype,
       dept: this.portControl_dept,
+      problem_cause: [''],
     });
 
     //2428 12022507
@@ -83,7 +84,8 @@ export class Rwa01Page implements OnInit {
     this.ports_checktype = [
       {id: '0',type: 'จากสำนักงาน'},
       {id: '1',type: 'ไปช่วยปฏิบัติงาน'},
-      {id: '2',type: 'WFH'},
+      {id: '2',type: 'ไม่มี Smart Phone/ปัญหาอื่นๆ'},
+      {id: '3',type: 'WFH'},
     ];
   }
 
@@ -206,6 +208,7 @@ export class Rwa01Page implements OnInit {
       wifisubnet:this.wifisubnet,
       carrierip:this.carrierip,
       carriersubnet:this.carriersubnet,
+      problem_cause:this.ionicForm.controls.problem_cause.value,
     };
     //console.log(data);
     if( (type === 1 && this.timein !== null) || (type === 2 && this.timeout !== null)  ){
@@ -219,7 +222,7 @@ export class Rwa01Page implements OnInit {
         },
         {
           text: 'ยืนยัน',
-            handler: (data: any) => {
+            handler: () => {
               this.sub = this.configSv.crudrwa(data,'insert').subscribe(
                 (data) => {
                   if (data !== null){

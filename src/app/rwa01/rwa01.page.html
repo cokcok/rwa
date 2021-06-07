@@ -40,6 +40,10 @@
           กรุณาระบุ สังกัดที่ช่วย
         </span>
      </ion-item>
+     <ion-item *ngIf="this.ionicForm.controls.check_type.value.id === '2'">
+      <ion-label class="showlabel"  position="floating">ระบุปัญหาอื่นๆ</ion-label>
+      <ion-input  formControlName="problem_cause" type="text"  ></ion-input>
+     </ion-item>
       <ion-row>
         <ion-col>
           <ion-button type="submit" color="secondary" expand="block">เข้าสู่ระบบ</ion-button>
@@ -103,7 +107,7 @@
         </ion-row>
       </ion-grid>
 
-      <div *ngIf="(vkm <= setkm && datagps) || ionicForm.controls.check_type.value.id === '2'">
+      <div *ngIf="(vkm <= setkm && datagps) || dontchkgps.includes(ionicForm.controls.check_type.value.id)">
         <ion-grid>
          <ion-row>
            <ion-col><ion-label>บันทึกเข้าเวลา :</ion-label></ion-col>
@@ -119,7 +123,7 @@
         </ion-row>
         </ion-grid>
       </div>
-      <div *ngIf="vkm > setkm && ionicForm.controls.check_type.value.id !== '2'">
+      <div *ngIf="vkm > setkm && !dontchkgps.includes(ionicForm.controls.check_type.value.id)">
         <ion-label class="error">ไม่สามารถลงเวลาได้ เนื่องจากระยะทางเกิน {{setkm*1000}} ม. กรุณาเข้าใกล้สำนักงานฯตามระยะทางที่กำหนด โดยกดปุ่มดึงพิกัดใหม่อีกครั้ง</ion-label>
       </div>
       <div *ngIf = "!datagps && ionicForm.controls.check_type.value.id !== '2'">
