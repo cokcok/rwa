@@ -395,4 +395,9 @@ export class Rwa01Page implements OnInit {
     let url = 'http://appcen01.rubber.co.th/wfh/index1.php';
     const browser = this.iab.create(url).show();
   }
+
+  GetGPSwork(lat,lon){
+    let url = 'https://maps.google.com/?q='+ lat +','+ lon +'';
+    const browser = this.iab.create(url).show();
+  }
 }

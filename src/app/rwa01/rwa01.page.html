@@ -89,7 +89,7 @@
         </ion-row>
         <ion-row  *ngFor="let c of datagps">
           <ion-col>
-            <ion-label> <u>พิกัดสำนักงาน</u> {{c.lat}} , {{c.lon}}</ion-label>
+            <ion-label> <u>พิกัดสำนักงาน</u> {{c.lat}} , {{c.lon}}  <ion-button (click)="GetGPSwork(c.lat,c.lon)">เปิดดูพิกัดสำนักงาน</ion-button></ion-label>
           </ion-col>
         </ion-row>
         <ion-row *ngIf="!datagps">
