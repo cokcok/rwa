@@ -23,8 +23,8 @@ import { NetworkInterface } from '@ionic-native/network-interface/ngx';
 export class Rwa01Page implements OnInit {
   ionicForm: FormGroup; sub: Subscription;
   isSubmitted = false; vlat: any; vlon: any; vplf: any; vdevice: any;
-  versionNumber: string | number;checktype:any;
-  vip:any;vip2:any; deviceInfo:any; ipAddress:string;vkm:any;
+  versionNumber: string | number;checktype: any;
+  vip: any; vip2: any; deviceInfo: any; ipAddress:string;vkm:any;
   emp_code:string;emp_name:string;dept_name:string;dept_id:number;img:string;
   datagps =[];timein:string;timeout:string;
   gpsplacelon:any; gpsplacelat:any;
@@ -189,7 +189,8 @@ export class Rwa01Page implements OnInit {
   async Checkinout(type){
     //console.log(this.ionicForm.value);
     //console.log(this.vlat,this.vlon);
-    if ( typeof this.vlat === "undefined"  ){
+    console.log(this.checktype);
+    if ( typeof this.vlat === "undefined" && !this.dontchkgps.includes(this.checktype) ){
       this.configSv.ChkformAlert('ไม่สามาถบันทึกได้ กรุณาดึงพิกัดใหม่');
       return false;
     }

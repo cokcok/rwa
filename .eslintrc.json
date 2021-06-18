@@ -13,6 +13,8 @@
         "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint"],
       "rules": {
         "@angular-eslint/component-class-suffix": [
           "error",
@@ -35,6 +37,13 @@
             "prefix": "app",
             "style": "camelCase"
           }
+        ],
+        "@typescript-eslint/type-annotation-spacing": [
+        "error",
+        {
+            "before": true,
+            "after": true,
+        },
         ]
       }
     },

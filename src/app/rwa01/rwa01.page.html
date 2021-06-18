@@ -123,6 +123,9 @@
         </ion-row>
         </ion-grid>
       </div>
+      <div *ngIf="!vkm && !dontchkgps.includes(ionicForm.controls.check_type.value.id)">
+        <ion-label class="error">ไม่สามารถดึงพิกัด กรุณาทำการอนุญาต ตำแหน่งของท่านด้วย</ion-label>
+      </div>
       <div *ngIf="vkm > setkm && !dontchkgps.includes(ionicForm.controls.check_type.value.id)">
         <ion-label class="error">ไม่สามารถลงเวลาได้ เนื่องจากระยะทางเกิน {{setkm*1000}} ม. กรุณาเข้าใกล้สำนักงานฯตามระยะทางที่กำหนด โดยกดปุ่มดึงพิกัดใหม่อีกครั้ง</ion-label>
       </div>
