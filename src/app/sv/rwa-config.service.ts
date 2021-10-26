@@ -12,7 +12,7 @@ import {Keepalive} from '@ng-idle/keepalive';
   providedIn: 'root'
 })
 export class RwaConfigService {
-  public ip:string = "https://appcen01.rubber.co.th/ws_rwa/";
+  public ip:string = "https://appcen01.raot.co.th/ws_rwa/";
   //public ip: string = "https://www.rubber.co.th/gir/sc/";
   idleState = 'Not started.';timedOut = false;lastPing?: Date = null;
   constructor(private http: HttpClient,private loadingController: LoadingController,private alertCtrl: AlertController,private idle: Idle, private keepalive: Keepalive,private navCtrl: NavController) { }

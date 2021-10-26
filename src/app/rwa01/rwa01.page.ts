@@ -184,7 +184,7 @@ export class Rwa01Page implements OnInit {
         this.ports_dept = data.data_detail.map((item) => Object.assign({}, item));
       }
     });
-  }
+  } 
 
   async Checkinout(type){
     //console.log(this.ionicForm.value);
@@ -284,9 +284,6 @@ export class Rwa01Page implements OnInit {
       return dist.toFixed(3);
     }
   }
-
-
-
 
   get errorControl() {
     return this.ionicForm.controls;
