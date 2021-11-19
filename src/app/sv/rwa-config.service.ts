@@ -84,8 +84,9 @@ export class RwaConfigService {
 
   signin(vdata:any, token?): Observable<employee> {
     const header = { 'Content-Type': 'application/json' };
-    //const apiUrl = this.ip + 'rwa_web.php';
-    const apiUrl = this.ip + 'rwa01.php';
+
+    //const apiUrl = this.ip + 'rwa01.php';
+    const apiUrl = this.ip + 'rwa01_test.php';
     // let dept_id = null;
     // if(typeof vdata.dept.dept_id !== undefined){
     //   dept_id = vdata.dept.dept_id;
@@ -97,6 +98,7 @@ export class RwaConfigService {
       'password': vdata.password,
       'check_type' : vdata.check_type.id,
       'dept_id' : vdata.dept.dept_id ,
+      'platform' : vdata.platform,
       'type_sql': 'login',
       //'token': token,
     }

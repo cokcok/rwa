@@ -32,7 +32,7 @@ export class Rwa01Page implements OnInit {
   portControl_dept: FormControl; ports_dept: any;
   wifiip:any; wifisubnet:any;carrierip:any;carriersubnet:any;
   idleState = 'Not started.';timedOutidle = false;lastPing?: Date = null;
-  setkm:number = 0.100;
+  setkm:number = 0.100;checkgps:boolean;
   dontchkgps = ['2','3'];
   constructor(public formBuilder: FormBuilder, public menuCtrl: MenuController, private navCtrl: NavController, private geolocation: Geolocation, public configSv: RwaConfigService,  public plf: Platform, private deviceService: DeviceDetectorService,private idle: Idle, private keepalive: Keepalive,private iab: InAppBrowser,private networkInterface: NetworkInterface,
     private alertCtrl: AlertController) {
@@ -41,6 +41,7 @@ export class Rwa01Page implements OnInit {
 
   ngOnInit() {
     //this.vplf = this.plf.platforms();
+    console.log(this.plf.platforms());
     this.portControl_checktype = this.formBuilder.control("", Validators.required);
     this.portControl_dept = this.formBuilder.control("");
     this.ionicForm = this.formBuilder.group({
@@ -48,27 +49,10 @@ export class Rwa01Page implements OnInit {
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
       check_type: this.portControl_checktype,
+      platform : [this.plf.platforms()],
       dept: this.portControl_dept,
       problem_cause: [''],
     });
-
-    //2428 12022507
-    // this.geolocation.getCurrentPosition().then((resp) => {
-    //   // resp.coords.latitude
-    //   // resp.coords.longitude
-    //   this.vlat = resp.coords.latitude;
-    //   this.vlon = resp.coords.longitude;
-    //   //console.log(resp,'eee');
-    // }).catch((error) => {
-    //   console.log('Error getting location', error);
-    // });
-    // let watch = this.geolocation.watchPosition();
-    // watch.subscribe((data) => {
-    //   // console.log(data);
-    //   // data can be a set of coordinates, or an error (if an error occurred).
-    //   // data.coords.latitude
-    //   // data.coords.longitude
-    // });
 
 
     setInterval(() => { this.GetDateTime() }, 1000);
@@ -116,35 +100,27 @@ export class Rwa01Page implements OnInit {
       this.sub = this.configSv.signin(this.ionicForm.value).subscribe(
         (data) => {
           if (data !== null){
-            //console.log(data);
-            //this.vkm = this.distance(100.467836986014,13.7716049981198,100.472836986015,13.7716049981199,'K')
-            //let x = this.distance(51.525,7.4575,51.5175,7.4678,'K')
-            //let x = this.distance(this.vlat,this.vlon,51.5175,7.4678,'K')
-            //console.log(x);
-            //this.data = data['employee'][0]['emp_name'];
-            //console.log(this.vlat,this.vlon)
+
             this.emp_code = data['employee'][0]['emp_code'];
             this.emp_name = data['employee'][0]['emp_name'];
             this.dept_id = data['employee'][0]['dept_id'];
             this.dept_name = data['employee'][0]['dept_name'];
-            //this.img = "http://10.99.70.35:8080/"+ data['employee'][0]['emp_code'] +".jpg"
+
             this.img = data['employee'][0]['pic'];
             this.datagps = data['employee'][0]['gps'];
             this.timein = data['employee'][0]['timein'];
             this.timeout = data['employee'][0]['timeout'];
             this.checktype = this.ionicForm.controls.check_type.value.id;
-            //this.ionicForm.controls["username"].setValue(null);
-            //this.ionicForm.controls["password"].setValue(null);
-            //this.isSubmitted = false;
-           // console.log(this.datagps);
+            //this.checkgps =  data['employee'][0]['checkgps'];
            if(this.datagps){
             this.gpsplacelat = data['employee'][0]['gps'][0]['lat'];
             this.gpsplacelon = data['employee'][0]['gps'][0]['lon'];
            }else{
             this.gpsplacelat = undefined; this.gpsplacelon = undefined;
            }
-           this.GetGPS(this.gpsplacelat, this.gpsplacelon);
-           // this.vkm = this.distance(data['employee'][0]['gps'][0]['lat'],data['employee'][0]['gps'][0]['lon'],this.vlat,this.vlon,'K' );
+           this.checkgps = data['employee'][0]['checkgps'];
+           this.GetGPS(this.gpsplacelat, this.gpsplacelon,this.checktype);
+
           }
           else
           {
@@ -184,12 +160,12 @@ export class Rwa01Page implements OnInit {
         this.ports_dept = data.data_detail.map((item) => Object.assign({}, item));
       }
     });
-  } 
+  }
 
   async Checkinout(type){
     //console.log(this.ionicForm.value);
     //console.log(this.vlat,this.vlon);
-    console.log(this.checktype);
+    //console.log(this.checktype);
     if ( typeof this.vlat === "undefined" && !this.dontchkgps.includes(this.checktype) ){
       this.configSv.ChkformAlert('ไม่สามาถบันทึกได้ กรุณาดึงพิกัดใหม่');
       return false;
@@ -294,21 +270,36 @@ export class Rwa01Page implements OnInit {
     this.ionicForm.controls["server_time"].setValue(moment().format('DD/MM/YYYY H:mm:ss'));
   }
 
-  GetGPS(plat,plon){
+  GetGPS(plat,plon,checkgps){
     this.geolocation.getCurrentPosition().then((resp) => {
-      // resp.coords.latitude
-      // resp.coords.longitude
-      this.vlat = resp.coords.latitude;
-      this.vlon = resp.coords.longitude;
+
+      if(checkgps === true){
+        this.vlat = resp.coords.latitude;
+        this.vlon = resp.coords.longitude;
+      }else{
+        this.vlat = plat;
+        this.vlon = plon;
+      }
+
+      // this.vlat = resp.coords.latitude;
+      // this.vlon = resp.coords.longitude;
       this.vkm = this.distance(plat,plon,this.vlat,this.vlon,'K' );
+      //console.log(this.vkm) ;
     }).catch((error) => {
-      console.log('Error getting location', error);
+      if(checkgps === false){
+        this.vkm = 0;
+        this.vlat = plat;
+        this.vlon = plon;
+      }else{
+        console.log('Error getting location', error);
+      }
     });
   }
 
   epicFunction() {
     //console.log('hello `Home` component');
     this.deviceInfo = this.deviceService.getDeviceInfo();
+    //console.log(this.deviceInfo);
     // const isMobile = this.deviceService.isMobile();
     // const isTablet = this.deviceService.isTablet();
     // const isDesktopDevice = this.deviceService.isDesktop();

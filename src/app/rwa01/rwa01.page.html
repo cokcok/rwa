@@ -99,7 +99,7 @@
         </ion-row>
         <ion-row>
           <ion-col>
-            <ion-label><u>พิกัดปัจจุบัน</u> {{vlat}} , {{vlon}} <ion-button (click)="GetGPS(gpsplacelat,gpsplacelon)">ดึงพิกัดใหม่</ion-button></ion-label>
+            <ion-label><u>พิกัดปัจจุบัน</u> {{vlat}} , {{vlon}} <ion-button (click)="GetGPS(gpsplacelat,gpsplacelon,checkgps)">ดึงพิกัดใหม่</ion-button> </ion-label>    <ion-button color="warning" (click)="GetGPSwork(vlat,vlon)">เปิดดูพิกัดปัจจุบัน</ion-button>
           </ion-col>
         </ion-row>
         <ion-row>
@@ -123,7 +123,7 @@
         </ion-row>
         </ion-grid>
       </div>
-      <div *ngIf="!vkm && !dontchkgps.includes(ionicForm.controls.check_type.value.id)">
+      <div *ngIf="vkm == null && !dontchkgps.includes(ionicForm.controls.check_type.value.id)">
         <ion-label class="error">ไม่สามารถดึงพิกัด กรุณาทำการอนุญาต ตำแหน่งของท่านด้วย</ion-label>
       </div>
       <div *ngIf="vkm > setkm && !dontchkgps.includes(ionicForm.controls.check_type.value.id)">
