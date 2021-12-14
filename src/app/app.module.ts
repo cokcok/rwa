@@ -15,6 +15,7 @@ import { NgIdleKeepaliveModule } from '@ng-idle/keepalive'; // this includes the
 import { MomentModule } from 'angular2-moment'; // optional, provides moment-style pipes for date formatting
 import { IonicSelectableModule } from 'ionic-selectable';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -24,7 +25,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
     // or after 30 seconds (whichever comes first).
     registrationStrategy: 'registerWhenStable:30000'
   }), HttpClientModule, MomentModule,NgIdleKeepaliveModule.forRoot(),IonicSelectableModule],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, Geolocation, Device, NetworkInterface, DeviceDetectorService,InAppBrowser],
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy },{ provide: LocationStrategy, useClass: HashLocationStrategy }, Geolocation, Device, NetworkInterface, DeviceDetectorService,InAppBrowser,],
   bootstrap: [AppComponent],
 })
 export class AppModule { }

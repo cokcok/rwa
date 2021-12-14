@@ -86,7 +86,7 @@ export class RwaConfigService {
     const header = { 'Content-Type': 'application/json' };
 
     //const apiUrl = this.ip + 'rwa01.php';
-    const apiUrl = this.ip + 'rwa01_test.php';
+    const apiUrl = this.ip + 'rwa01.php';
     // let dept_id = null;
     // if(typeof vdata.dept.dept_id !== undefined){
     //   dept_id = vdata.dept.dept_id;

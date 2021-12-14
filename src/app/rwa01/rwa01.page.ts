@@ -119,7 +119,8 @@ export class Rwa01Page implements OnInit {
             this.gpsplacelat = undefined; this.gpsplacelon = undefined;
            }
            this.checkgps = data['employee'][0]['checkgps'];
-           this.GetGPS(this.gpsplacelat, this.gpsplacelon,this.checktype);
+           //console.log(data['employee'][0]['checkgps'],this.checkgps);
+           this.GetGPS(this.gpsplacelat, this.gpsplacelon,this.checkgps);
 
           }
           else
@@ -272,7 +273,7 @@ export class Rwa01Page implements OnInit {
 
   GetGPS(plat,plon,checkgps){
     this.geolocation.getCurrentPosition().then((resp) => {
-
+      //console.log(checkgps)
       if(checkgps === true){
         this.vlat = resp.coords.latitude;
         this.vlon = resp.coords.longitude;
