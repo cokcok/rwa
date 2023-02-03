@@ -10,11 +10,18 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 import {Idle, DEFAULT_INTERRUPTSOURCES} from '@ng-idle/core';
 import {Keepalive} from '@ng-idle/keepalive';
 import * as moment_ from 'moment';
+
 import 'moment/locale/th';
 const moment = moment_;
+
 import { IonicSelectableComponent } from 'ionic-selectable';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { NetworkInterface } from '@ionic-native/network-interface/ngx';
+
+import { HttpClient } from '@angular/common/http';
+declare var navigator: any;
+
+
 @Component({
   selector: 'app-rwa01',
   templateUrl: './rwa01.page.html',
@@ -34,10 +41,12 @@ export class Rwa01Page implements OnInit {
   idleState = 'Not started.';timedOutidle = false;lastPing?: Date = null;
   setkm:number = 0.100;checkgps:boolean;
   dontchkgps = ['2','3'];
+  watchId: any;
   constructor(public formBuilder: FormBuilder, public menuCtrl: MenuController, private navCtrl: NavController, private geolocation: Geolocation, public configSv: RwaConfigService,  public plf: Platform, private deviceService: DeviceDetectorService,private idle: Idle, private keepalive: Keepalive,private iab: InAppBrowser,private networkInterface: NetworkInterface,
-    private alertCtrl: AlertController) {
+    private alertCtrl: AlertController,private http: HttpClient) {
     this.chkidle();
   }
+
 
   ngOnInit() {
     //this.vplf = this.plf.platforms();
@@ -90,7 +99,7 @@ export class Rwa01Page implements OnInit {
     //     {id: '3',type: 'WFH'},
     //   ];
     // }
-   
+
 
 
   }
@@ -105,8 +114,41 @@ export class Rwa01Page implements OnInit {
     }else{
       this.ionicForm.get('dept').setValidators(null);
     }
+
+    if(event.value.id == '2'){
+      this.ionicForm.get('problem_cause').setValidators(Validators.required);
+    }
+    else{
+      this.ionicForm.get('problem_cause').setValidators(null);
+    }
+
+    this.ionicForm.get('problem_cause').updateValueAndValidity();
     this.ionicForm.get('dept').updateValueAndValidity();
   }
+
+
+  resetLocationPermission() {
+  //   navigator.permissions.query({name:'geolocation'}).then(permissionStatus => {
+  //     // if permission is granted then revoke it
+  //     if(permissionStatus.state === 'granted'){
+  //         permissionStatus.revoke();
+  //         console.log("GPS permission revoked!");
+  //     } else{
+  //         console.log("GPS permission not granted, no need to revoke");
+  //     }
+  // });
+  navigator.permissions.query({name:'geolocation'}).then(permissionStatus => {
+    if(permissionStatus.state === 'granted'){
+        console.log("GPS permission is granted");
+    } else{
+        permissionStatus.revoke();
+        console.log("GPS permission is denied");
+    }
+});
+
+
+
+}
 
 
 
@@ -127,7 +169,6 @@ export class Rwa01Page implements OnInit {
             this.emp_name = data['employee'][0]['emp_name'];
             this.dept_id = data['employee'][0]['dept_id'];
             this.dept_name = data['employee'][0]['dept_name'];
-
             this.img = data['employee'][0]['pic'];
             this.datagps = data['employee'][0]['gps'];
             this.timein = data['employee'][0]['timein'];
@@ -291,6 +332,11 @@ export class Rwa01Page implements OnInit {
 
   GetDateTime() {
     this.ionicForm.controls["server_time"].setValue(moment().format('DD/MM/YYYY H:mm:ss'));
+
+    // const london_time_zone = moment_th().tz("Asia/Bangkok").format('DD/MM/YYYY H:mm:ss');
+
+    // console.log(london_time_zone)
+
   }
 
   GetGPS(plat,plon,checkgps){

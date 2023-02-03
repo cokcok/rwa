@@ -43,6 +43,9 @@
      <ion-item *ngIf="this.ionicForm.controls.check_type.value.id === '2'">
       <ion-label class="showlabel"  position="floating">ระบุปัญหาอื่นๆ</ion-label>
       <ion-input  formControlName="problem_cause" type="text"  ></ion-input>
+      <span  class="error" *ngIf="isSubmitted && errorControl.problem_cause.errors?.required">
+        กรุณาระบุ ปัญหาอื่นๆ
+      </span>
      </ion-item>
       <ion-row>
         <ion-col>
@@ -62,6 +65,9 @@
       <ion-col>
         <button class="manual" ion-button (click)="openmanual()">คู่มือการใช้งาน</button>
       </ion-col>
+      <!-- <ion-col>
+        <button class="manual" ion-button (click)="resetLocationPermission()">เปิด สิทธิ์ GPS</button>
+      </ion-col> -->
       <ion-col>
         <button class="manual1" ion-button (click)="openmanual1()">ดูข้อมูลย้อนหลัง</button>
       </ion-col>
@@ -131,7 +137,7 @@
       <div *ngIf = "!datagps && ionicForm.controls.check_type.value.id !== '2'">
           <ion-label class="error">ไม่สามารถลงเวลาได้ เนื่องจากไม่พบพิกัด สำนักงาน กรุณาติดต่อ 12322</ion-label>
       </div>
-    </div> 
+    </div>
     <ion-row  >
         <ion-label class="appversion"> App Version : {{versionNumber}} </ion-label>
     </ion-row>
