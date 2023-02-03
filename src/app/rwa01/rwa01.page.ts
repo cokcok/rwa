@@ -41,7 +41,7 @@ export class Rwa01Page implements OnInit {
 
   ngOnInit() {
     //this.vplf = this.plf.platforms();
-    console.log(this.plf.platforms());
+    //console.log(this.plf.platforms());
     this.portControl_checktype = this.formBuilder.control("", Validators.required);
     this.portControl_dept = this.formBuilder.control("");
     this.ionicForm = this.formBuilder.group({
@@ -65,12 +65,34 @@ export class Rwa01Page implements OnInit {
   }
 
   loaddata_checktype(){
+    //console.log(moment().format('DD/MM/YYYY'));
+
     this.ports_checktype = [
       {id: '0',type: 'จากสำนักงาน'},
       {id: '1',type: 'ไปช่วยปฏิบัติงาน'},
       {id: '2',type: 'ไม่มี Smart Phone/ปัญหาอื่นๆ'},
-      {id: '3',type: 'WFH'},
     ];
+
+    // if(moment().format('DD/MM/YYYY') == '01/07/2022')
+    // {
+    //   this.ports_checktype = [
+    //     {id: '0',type: 'จากสำนักงาน'},
+    //     {id: '1',type: 'ไปช่วยปฏิบัติงาน'},
+    //     {id: '2',type: 'ไม่มี Smart Phone/ปัญหาอื่นๆ'},
+    //   ];
+    // }
+    // else
+    // {
+    //   this.ports_checktype = [
+    //     {id: '0',type: 'จากสำนักงาน'},
+    //     {id: '1',type: 'ไปช่วยปฏิบัติงาน'},
+    //     {id: '2',type: 'ไม่มี Smart Phone/ปัญหาอื่นๆ'},
+    //     {id: '3',type: 'WFH'},
+    //   ];
+    // }
+   
+
+
   }
 
   portChange(event: {
