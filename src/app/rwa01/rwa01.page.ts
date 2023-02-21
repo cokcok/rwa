@@ -39,7 +39,7 @@ export class Rwa01Page implements OnInit {
   portControl_dept: FormControl; ports_dept: any;
   wifiip:any; wifisubnet:any;carrierip:any;carriersubnet:any;
   idleState = 'Not started.';timedOutidle = false;lastPing?: Date = null;
-  setkm:number = 0.100;checkgps:boolean;
+  setkm:number = 0.200;checkgps:boolean;
   dontchkgps = ['2','3'];
   watchId: any;
   constructor(public formBuilder: FormBuilder, public menuCtrl: MenuController, private navCtrl: NavController, private geolocation: Geolocation, public configSv: RwaConfigService,  public plf: Platform, private deviceService: DeviceDetectorService,private idle: Idle, private keepalive: Keepalive,private iab: InAppBrowser,private networkInterface: NetworkInterface,
@@ -99,7 +99,7 @@ export class Rwa01Page implements OnInit {
     //     {id: '3',type: 'WFH'},
     //   ];
     // }
-
+ 
 
 
   }
@@ -163,27 +163,36 @@ export class Rwa01Page implements OnInit {
       this.configSv.loadingAlert(2000);
       this.sub = this.configSv.signin(this.ionicForm.value).subscribe(
         (data) => {
-          if (data !== null){
-
-            this.emp_code = data['employee'][0]['emp_code'];
-            this.emp_name = data['employee'][0]['emp_name'];
-            this.dept_id = data['employee'][0]['dept_id'];
-            this.dept_name = data['employee'][0]['dept_name'];
-            this.img = data['employee'][0]['pic'];
-            this.datagps = data['employee'][0]['gps'];
-            this.timein = data['employee'][0]['timein'];
-            this.timeout = data['employee'][0]['timeout'];
-            this.checktype = this.ionicForm.controls.check_type.value.id;
-            //this.checkgps =  data['employee'][0]['checkgps'];
-           if(this.datagps){
-            this.gpsplacelat = data['employee'][0]['gps'][0]['lat'];
-            this.gpsplacelon = data['employee'][0]['gps'][0]['lon'];
-           }else{
-            this.gpsplacelat = undefined; this.gpsplacelon = undefined;
-           }
-           this.checkgps = data['employee'][0]['checkgps'];
-           //console.log(data['employee'][0]['checkgps'],this.checkgps);
-           this.GetGPS(this.gpsplacelat, this.gpsplacelon,this.checkgps);
+          if (data !== null)
+          {
+            if(data['employee'][0]['login'] == 'pass')
+            {
+              this.emp_code = data['employee'][0]['emp_code'];
+              this.emp_name = data['employee'][0]['emp_name'];
+              this.dept_id = data['employee'][0]['dept_id'];
+              this.dept_name = data['employee'][0]['dept_name'];
+              this.img = data['employee'][0]['pic'];
+              this.datagps = data['employee'][0]['gps'];
+              this.timein = data['employee'][0]['timein'];
+              this.timeout = data['employee'][0]['timeout'];
+              this.checktype = this.ionicForm.controls.check_type.value.id;
+              //this.checkgps =  data['employee'][0]['checkgps'];
+             if(this.datagps){
+              this.gpsplacelat = data['employee'][0]['gps'][0]['lat'];
+              this.gpsplacelon = data['employee'][0]['gps'][0]['lon'];
+             }else{
+              this.gpsplacelat = undefined; this.gpsplacelon = undefined;
+             }
+             this.checkgps = data['employee'][0]['checkgps'];
+             //console.log(data['employee'][0]['checkgps'],this.checkgps);
+             this.GetGPS(this.gpsplacelat, this.gpsplacelon,this.checkgps);
+            }
+            else
+            {
+              setTimeout(() => {
+                this.configSv.ChkformAlert(data['employee'][0]['massage']);
+                }, 2100);
+            }
 
           }
           else
@@ -230,10 +239,10 @@ export class Rwa01Page implements OnInit {
     //console.log(this.ionicForm.value);
     //console.log(this.vlat,this.vlon);
     //console.log(this.checktype);
-    if ( typeof this.vlat === "undefined" && !this.dontchkgps.includes(this.checktype) ){
-      this.configSv.ChkformAlert('ไม่สามาถบันทึกได้ กรุณาดึงพิกัดใหม่');
-      return false;
-    }
+    // if ( typeof this.vlat === "undefined" && !this.dontchkgps.includes(this.checktype) ){
+    //   this.configSv.ChkformAlert('ไม่สามาถบันทึกได้ กรุณาดึงพิกัดใหม่');
+    //   return false;
+    // }
     let data = {
       empcode :this.emp_code,
       logtime : this.ionicForm.controls.server_time.value,
@@ -251,8 +260,9 @@ export class Rwa01Page implements OnInit {
       carriersubnet:this.carriersubnet,
       problem_cause:this.ionicForm.controls.problem_cause.value,
     };
-    //console.log(data);
-    if( (type === 1 && this.timein !== null) || (type === 2 && this.timeout !== null)  ){
+    console.log(data);
+    if( (type === 1 && this.timein !== null) || (type === 2 && this.timeout !== null)  )
+    {
       const confirm =  await this.alertCtrl.create({
         header: 'คุณต้องการยืนยันการลงเวลาซ้ำอีกใช่ไหม ??',
         buttons: [{
@@ -267,12 +277,21 @@ export class Rwa01Page implements OnInit {
               this.sub = this.configSv.crudrwa(data,'insert').subscribe(
                 (data) => {
                   if (data !== null){
-                    this.configSv.ChkformAlert(data.message);
-                    if(type === 1){
-                      this.timein  = this.ionicForm.controls.server_time.value
-                    }else if(type === 2){
-                      this.timeout = this.ionicForm.controls.server_time.value
+                    if(data.status === 'ok')
+                    {
+                      this.configSv.ChkformAlert(data.message);
+                      if(type === 1){
+                        this.timein  = this.ionicForm.controls.server_time.value
+                      }else if(type === 2){
+                        this.timeout = this.ionicForm.controls.server_time.value
+                      }
                     }
+                    else
+                    {
+                      this.configSv.ChkformAlert(data.message);
+                    }
+                  
+
                   }
                 },(error) => {
                   console.log(JSON.stringify(error));
@@ -282,15 +301,24 @@ export class Rwa01Page implements OnInit {
         }]
       });
       confirm.present();
-    }else{
+    }
+    else
+    {
       this.sub = this.configSv.crudrwa(data,'insert').subscribe(
         (data) => {
           if (data !== null){
-            this.configSv.ChkformAlert(data.message);
-            if(type === 1){
-              this.timein  = this.ionicForm.controls.server_time.value
-            }else if(type === 2){
-              this.timeout = this.ionicForm.controls.server_time.value
+            if(data.status === 'ok')
+            {
+              this.configSv.ChkformAlert(data.message);
+              if(type === 1){
+                this.timein  = this.ionicForm.controls.server_time.value
+              }else if(type === 2){
+                this.timeout = this.ionicForm.controls.server_time.value
+              }
+            }
+            else
+            {
+              this.configSv.ChkformAlert(data.message);
             }
           }
         },(error) => {
@@ -306,7 +334,7 @@ export class Rwa01Page implements OnInit {
   distance(lat1, lon1, lat2, lon2, unit) {
     if ((lat1 == lat2) && (lon1 == lon2)) {
       return 0;
-    }
+    } 
     else {
       var radlat1 = Math.PI * lat1/180;
       var radlat2 = Math.PI * lat2/180;
@@ -450,7 +478,7 @@ export class Rwa01Page implements OnInit {
   }
 
   openmanual1(){
-    let url = 'http://appcen01.rubber.co.th/wfh/index1.php';
+    let url = 'http://appcen01.raot.co.th/wfh/index1.php';
     const browser = this.iab.create(url).show();
   }
 
